@@ -42,9 +42,15 @@ class AuthApi {
   forgotPassword(data) {
      return this.request('post', '/forgotpassword' , data);
  }
- 
+
  resetpassword(data) {
   return this.request('post',  `/resetpassword?resetPasswordToken=${data.resetPasswordToken}`, data);
+}
+getProfile() {
+  return this.request('get', '/profile');
+}
+updateProfile(data) {
+  return this.request('patch', '/profile', data);
 }
 Logout() {
   return this.request('post', '/logout');

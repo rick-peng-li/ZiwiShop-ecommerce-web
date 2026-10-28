@@ -1,287 +1,324 @@
- # [Ziwishop](https://ziwishop.netlify.app/) Clothes Ecommerce website and dashboard Documentation
- 
-   -  Welcome to the documentation for the Ziwishop Clothes an open source e-commerce built using the MERN stack (MongoDB, Express, React, Node.js) with a Vite frontend project. This document will guide you through the key features and functionalities of the application.
+# ZiwiShop E-commerce Web
 
-   ### Table of Contents
-   - 🔗 Introduction
-   - 🔗 Tech Stack
-   - 🔗 Key Features
-   - 🔗 Getting Started
-   - 🔗 Installation
-   - 🔗 Usage
-   - 🔗 Illustration of Google Oauth process (without Passport or any googleapis npm package)
-   - 🔗 Authentication / Authorization
-   - 🔗 Admin Dashboard
-   - 🔗 User Interface
-   - 🔗 Categories
-   - 🔗 Products
-   - 🔗 Brands
-   - 🔗 Sizes
-   - 🔗 Image Management
-   - 🔗 Search and Filters
-   - 🔗 Orders and Sales
-   - 🔗 Payment Options
-   - 🔗 Contributing
-   - 🔗 License
- 
- ---
- ###  Introduction
--  Ziwishop is a comprehensive Clothes Ecommerce application that offers a seamless shopping experience for both customers and administrators.  
+Git 仓库：<https://github.com/rick-peng-li/ZiwiShop-ecommerce-web>
 
--  It all began with a small old project built using 'npx create-react-app' with Bootstrap styling. However, from just trying to transform it to mui and add linkedin auth , finding myself reimagining the project using the MERN stack  with a Vite frontend project and Material-UI (MUI) version 5 for a more responsive and dynamic user interface. inspired by celio and some  other ecommerce sites... 
- 
-##  old Version Demo (simple auth with facebook and google): 
+ZiwiShop 是一套面向服装零售的全栈电商系统，包含面向顾客的购物商城和面向运营人员的后台管理面板。前端使用 React 18 + Vite 构建，后端基于 Node.js + Express，数据存储在 MongoDB，商品图片存放于 Cloudinary，支付接入 Stripe 与 PayPal。界面文案统一使用英文，代码结构按「前端 client / 后端 server」划分。
 
- <img src="https://github.com/mohamedzhioua/ZiwiShop-ecommerce/blob/main/client/src/assets/mern-stack-social-authentication_demo.gif">
+## 目录
 
- ---
- 
-##  New ZiwiShop Demo (click to watch): 
+- [功能概览](#功能概览)
+- [技术架构](#技术架构)
+- [项目结构](#项目结构)
+- [页面与模块](#页面与模块)
+- [接口设计](#接口设计)
+- [数据模型](#数据模型)
+- [本地启动](#本地启动)
+- [环境变量](#环境变量)
+- [生产构建](#生产构建)
 
-[![youtube demo link](http://img.youtube.com/vi/MiBDLSnPVFg/0.jpg)](https://www.youtube.com/watch?v=MiBDLSnPVFg&ab_channel=mohamedzhioua)
+## 功能概览
 
-  ---
-### :space_invader: Tech Stack
+- 顾客端：浏览首页推荐、按分类/品牌/尺码/价格筛选搜索、查看商品详情、选择尺码加入购物车、四步结算、在线支付或货到付款、查看订单历史与个人资料。
+- 账号体系：邮箱注册与邮箱验证、密码登录、忘记/重置密码、Google OAuth、Facebook 登录；登录态由 Access Token + Refresh Token Cookie 维持，Access Token 过期后自动静默续期。
+- 管理端：数据概览（用户数、库存、已支付订单、营收、近七日营收柱状图）、商品/分类/品牌/尺码的增删改查、订单查看与发货状态标记。
+- 商品图片：前端支持最多 5 张图片上传，后端用 multer 接收、sharp 压缩为 webp 后上传 Cloudinary；删除商品或图片时同步清理云端资源。
+- 权限控制：基于角色的访问控制（`USER` / `ADMIN`），后端中间件校验，前端路由按角色守卫。
 
-[![My Skills](https://skillicons.dev/icons?i=js,react,materialui,nodejs,express,mongodb)](https://skillicons.dev)
+## 技术架构
 
-<img src="https://camo.githubusercontent.com/451061eb9714c2135705a1ad757017cc943627ca474d8a20e78209214469bf72/68747470733a2f2f6437756d7169637069373236332e636c6f756466726f6e742e6e65742f696d672f70726f647563742f65306364363161372d316336352d343561302d393765652d3737363364646335313533612f39383834313664302d323562632d346264322d623864622d6633343764306131393335642e706e67"> 
- 
- <img src="https://github.com/mohamedzhioua/ZiwiShop-ecommerce/blob/main/client/src/assets/paypal-strirpe.jpeg">
-  
----
-### Key Features
+### 前端
 
-  - [x] Fully **responsive design** to provide optimal user experience on various devices.
-  - [x] **Props validation** implemented throughout the project to ensure data integrity and proper component usage.
-  - [x] Implemented **input validation at both the front-end(Yup) and back-end(validator)**  to enhance data integrity and security.
-  - [x] Using **formik** building forms .
-  - [x] Using **nodemailer**  for User **email verification**.
-  - [x] User authentication via **Google OAuth** implemented using Node.js **(without Passport or any googleapis npm package)** 
-  - [x] User authentication **Facebook** for easy access.
-  - [x] **Admin dashboard** for administrators to manage the platform efficiently, featuring charts and visualizations for data analysis.
-  - [x] User-friendly interface for customers to explore and purchase products.
-  - [x] Create, update, and delete categories with support for **nested categories**.
-  - [x] Product **management**, including creation, updating, and deletion.
-  - [x] "Featured" product option for highlighting products on the homepage.
-  - [x] Brand management to categorize products by brand.
-  - [x] Size management to define available product sizes.
-  - [x] **Cloudinary** integration for **uploading and managing multiple product images**. 
-  - [x] Advanced search and filter options for categories, products, sizes, and price ranges with pagination.
-  - [x] Order history and sales analytics, including graphs and revenue overviews.
-  - [x] Seamless order creation and the ability to add products to the cart.
-  - [x] Multiple payment options, including **Stripe**, **PayPal**, and cash.
-  - [ ] Migrating the project to **TypeScript and Next.js**
+| 方向 | 选型 |
+| --- | --- |
+| 框架 | React 18、Vite 4 |
+| UI | MUI 5（Material UI）、Emotion |
+| 路由 | React Router 6（懒加载 + 角色路由守卫） |
+| 状态 | Redux Toolkit（购物车）、React Context（登录态/主题/分类） |
+| 表单 | Formik + Yup |
+| 请求 | Axios 实例 + 请求/响应拦截器（自动附带 Bearer Token、401 自动刷新） |
+| 图表 | ApexCharts |
+| 轮播 | Swiper |
+| 支付 | `@stripe/react-stripe-js`、`@paypal/react-paypal-js` |
 
+### 后端
 
- ---
+| 方向 | 选型 |
+| --- | --- |
+| 运行时 | Node.js、Express 4 |
+| 数据库 | MongoDB、Mongoose 6 |
+| 认证 | JWT（Access Token 20 分钟、Refresh Token 7 天，httpOnly Cookie）、bcryptjs |
+| 校验 | 自定义 validator 模块 |
+| 文件 | multer（内存存储）、sharp（转 webp）、cloudinary |
+| 邮件 | Nodemailer + Express Handlebars 模板 |
+| 支付 | Stripe SDK、PayPal JS SDK |
+| 第三方登录 | Google OAuth 2.0（直接调用 token/userinfo 接口，未使用 Passport）、Facebook Graph API |
 
-###  Getting Started
- -  To get started with the Ziwishop Clothes Ecommerce App, follow these steps:
+请求链路：浏览器 → Axios（自动携带 Token）→ Express 路由 → 鉴权中间件 → 控制器 → Mongoose → MongoDB；图片类请求额外经过 multer/sharp/Cloudinary。
 
-## ⚙ Installation
+## 项目结构
 
- 👉1: Clone the GitHub repository to your local machine:
-
-```bash
-git clone https://github.com/yourusername/ziwishop.git
+```text
+ZiwiShop-ecommerce-web/
+├── client/                  # 前端
+│   ├── src/
+│   │   ├── api/             # 按业务域拆分的接口封装（auth/product/order...）
+│   │   ├── app/             # Redux store 与 cart slice
+│   │   ├── assets/          # 图片、图标、动画
+│   │   ├── components/      # 通用组件与业务组件
+│   │   ├── contexts/        # 登录态、主题、分类上下文
+│   │   ├── hooks/           # 自定义 hooks
+│   │   ├── layouts/         # 顶部导航、侧边栏、页脚
+│   │   ├── pages/           # 页面（商城 + 后台）
+│   │   ├── routes/          # 路由表与路由守卫
+│   │   ├── theme/           # MUI 主题
+│   │   └── utils/           # 格式化、分页、分类扁平化等工具
+│   ├── index.html
+│   └── vite.config.js
+└── server/                  # 后端
+    ├── config/              # 数据库连接
+    ├── controllers/         # 业务控制器
+    ├── middlewares/         # 鉴权、上传、图片压缩
+    ├── models/              # Mongoose 模型
+    ├── routes/              # REST 路由
+    ├── utils/               # JWT、邮件、Cloudinary、分类树等
+    ├── validator/           # 请求参数校验
+    ├── views/               # 邮件模板（handlebars）
+    ├── seed.js              # 演示数据初始化脚本
+    └── server.js            # 应用入口
 ```
 
-👉2: Install the required dependencies for the frontend:
+## 页面与模块
+
+### 商城端
+
+| 路由 | 页面 | 功能 |
+| --- | --- | --- |
+| `/` | 首页 | 主视觉轮播、品牌轮播、服务介绍、精选商品列表、加入我们、页脚 |
+| `/ZiwiShop/search` | 商品搜索 | 分类/品牌/尺码/价格区间筛选，按时间、价格、名称排序，分页；移动端筛选抽屉 |
+| `/productDetails/:id` | 商品详情 | 图片展示、商品信息、尺码选择、加入购物车、同类商品推荐 |
+| `/ZiwiShop/FAQ` | 常见问题 | 手风琴式问答 |
+| `/signin`、`/signup` | 登录/注册 | 邮箱密码登录注册、Google/Facebook 第三方登录 |
+| `/forgotpassword`、`/resetpassword` | 找回/重置密码 | 邮件链接重置密码 |
+| `/emailverification` | 邮箱验证 | 通过激活 Token 完成验证并自动登录 |
+| `/checkout` | 结算 | 四步流程：账单地址 → 联系方式 → 支付方式 → 确认订单 |
+| `/order/:id` | 订单详情 | 地址、支付状态、商品明细、金额汇总；未支付时可按支付方式发起支付或删除订单 |
+| `/OrderHistory` | 订单历史 | 当前用户订单列表，分页查看 |
+| `/profile` | 个人中心 | 查看账号信息，修改昵称与头像地址 |
+
+购物车以抽屉形式常驻，数据存放在 Redux 并持久化到 localStorage；支持增减数量、删除单项、查看小计并直接进入结算。
+
+### 管理端
+
+| 路由 | 页面 | 功能 |
+| --- | --- | --- |
+| `/dashboard/overview` | 数据概览 | 用户数、库存总量、已支付订单数、总营收、近七日营收图表 |
+| `/dashboard/products` | 商品列表 | 搜索、分页、编辑、删除 |
+| `/dashboard/products/add`、`/edit/:id` | 商品编辑 | 名称、描述、价格、库存、分类、品牌、尺码、图片上传、精选/归档开关 |
+| `/dashboard/categories` | 分类管理 | 树形分类（父分类/子分类）、新增、编辑、删除 |
+| `/dashboard/brands` | 品牌管理 | 品牌增删改查 |
+| `/dashboard/sizes` | 尺码管理 | 尺码名称与值增删改查 |
+| `/dashboard/orders` | 订单管理 | 全量订单列表、查看详情、标记已发货 |
+
+## 接口设计
+
+统一前缀 `/api/v1`，返回 JSON。需要登录的接口在请求头携带 `Authorization: Bearer <accessToken>`；刷新令牌存放在 httpOnly Cookie 中，前端遇到 401 会自动调用刷新接口重放原请求。
+
+### 认证 `/api/v1/auth`
+
+| 方法 | 路径 | 鉴权 | 说明 |
+| --- | --- | --- | --- |
+| POST | `/signup` | 否 | 注册并发送验证邮件 |
+| POST | `/emailverification?activationToken=` | 否 | 验证邮箱，返回 Access Token 并写入刷新 Cookie |
+| POST | `/signin` | 否 | 邮箱密码登录 |
+| GET | `/profile` | 是 | 获取当前用户资料 |
+| PATCH | `/profile` | 是 | 修改昵称、头像，返回新的 Access Token |
+| GET | `/refresh` | Cookie | 用刷新令牌换取新的 Access Token |
+| POST | `/logout` | Cookie | 清除刷新 Cookie |
+| GET | `/googleLogin?code=` | 否 | Google OAuth 回调 |
+| POST | `/facebookLogin` | 否 | Facebook 登录 |
+| POST | `/forgotpassword` | 否 | 发送重置密码邮件 |
+| POST | `/resetpassword?resetPasswordToken=` | 否 | 重置密码并返回 Access Token |
+
+### 商品 `/api/v1/product`
+
+| 方法 | 路径 | 鉴权 | 说明 |
+| --- | --- | --- | --- |
+| GET | `/client/Products?page=` | 否 | 首页精选商品，每页 6 条 |
+| GET | `/client/:id` | 否 | 商城商品详情 |
+| GET | `/categories/client` | 否 | 商城分类树 |
+| GET | `/ZiwiShop/search` | 否 | 搜索，支持 `query`、`category`、`brand`、`size`、`price`、`sort`、`page`，每页 9 条 |
+| GET | `/relatedProducts/:id` | 否 | 同分类推荐商品 |
+| GET | `/options` | ADMIN | 商品表单可选项（尺码、分类树、品牌） |
+| GET | `/` | ADMIN | 后台商品列表 |
+| GET | `/:id` | ADMIN | 后台商品详情 |
+| POST | `/add` | ADMIN | 新建商品（multipart，最多 5 张图） |
+| PATCH | `/:id` | ADMIN | 更新商品并追加图片 |
+| PATCH | `/:id/image` | ADMIN | 删除单张图片并清理 Cloudinary |
+| DELETE | `/:id` | ADMIN | 删除商品及其全部图片 |
+
+### 分类 `/api/v1/category`、品牌 `/api/v1/brand`、尺码 `/api/v1/size`
+
+三个模块均为管理员接口，结构一致：
+
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| GET | `/` | 列表 |
+| GET | `/:id` | 详情 |
+| POST | `/add` | 新增 |
+| PATCH | `/:id` | 更新 |
+| DELETE | `/:id` | 删除 |
+
+分类额外提供 `GET /api/v1/category/categoryParents`，返回非叶子分类（可作为父分类的选项）。分类与品牌列表带 `href` 字段，可直接跳转搜索页。
+
+### 订单 `/api/v1/order`
+
+| 方法 | 路径 | 鉴权 | 说明 |
+| --- | --- | --- | --- |
+| POST | `/` | 是 | 创建订单 |
+| GET | `/mine` | 是 | 当前用户订单 |
+| GET | `/:id` | 是 | 订单详情 |
+| PATCH | `/:id/pay` | 是 | 更新支付结果（`isPaid`、`paidAt`、`paymentResult`） |
+| PATCH | `/:id/deliver` | ADMIN | 标记已发货 |
+| DELETE | `/:id` | 是 | 删除订单 |
+| GET | `/all` | ADMIN | 全部订单 |
+
+### 支付 `/api/v1/payment`
+
+| 方法 | 路径 | 鉴权 | 说明 |
+| --- | --- | --- | --- |
+| GET | `/stripeapikey` | 是 | 获取 Stripe 可发布 Key |
+| POST | `/create-payment-intent` | 是 | 创建 Stripe PaymentIntent，返回 clientSecret |
+
+PayPal 客户端 ID 通过 `GET /api/keys/paypal` 获取。
+
+### 仪表盘 `/api/v1/dashboard`
+
+| 方法 | 路径 | 鉴权 | 说明 |
+| --- | --- | --- | --- |
+| GET | `/` | ADMIN | 用户数、库存总量、已支付订单数、总营收、近七日每日营收 |
+
+## 数据模型
+
+| 模型 | 关键字段 |
+| --- | --- |
+| `user` | name、email、password、image、role(`USER`/`ADMIN`)、verified、serviceProvider(`email`/`google`/`facebook`)、resetPasswordToken |
+| `product` | name、description、price、category、sizes[]、images[]、countInStock、brand、isFeatured、isArchived |
+| `category` | name、parentCategory（自关联，支持树形分类）、isLeaf |
+| `brand` | name |
+| `size` | name、value |
+| `image` | url、cloudinary_id |
+| `order` | orderItems[]、shippingAddress、paymentMethod、paymentResult、itemsPrice、shippingPrice、totalPrice、user、userEmail、userPhone、isPaid、paidAt、isDelivered、deliveredAt |
+
+## 本地启动
+
+### 前置条件
+
+- Node.js 18+
+- npm 9+
+- Docker（用于运行 MongoDB），或本机已有的 MongoDB 服务
+
+### 1. 启动 MongoDB
 
 ```bash
-cd client
-npm install
+docker run -d --name ziwishop-mongo -p 27017:27017 -v ziwishop-mongo-data:/data/db mongo:7
 ```
 
-👉3: Create a .env file in the frontend directory and add the following variables:
+如果已有 MongoDB，可跳过此步并直接使用现有连接串。
 
-```bash
-VITE_FACEBOOK_APP_ID=<Your facebook app id>
-VITE_GOOGLE_CLIENT_ID=<Your google web Client id>
-VITE_GOOGLE_OAUTH_REDIRECT_URL=<Your google redicrect URL>
-VITE_API_URL==<Your server URL>
-```
-
-👉4: Install the required dependencies for the backend:
+### 2. 启动后端
 
 ```bash
 cd server
 npm install
+cp .env.example .env    # 按需填写密钥，本地演示可使用占位值
+npm run seed             # 初始化演示数据与测试账号（会清空现有数据）
+npm run dev              # 或 npm start
 ```
 
-👉5: Create a .env file in the backend directory and add the following variables:
+默认端口 `5000`。macOS 的 AirPlay 接收器会占用 5000，如遇端口冲突，把 `.env` 中的 `PORT` 改为 `5001`，并同步修改前端的 `VITE_API_URL`。
+
+### 3. 启动前端
 
 ```bash
-ACCESS_TOKEN_SECRET=<Your ACCESS_TOKEN_SECRET>
-ACTIVATION_SECRET=<Your ACTIVATION_SECRET here>
-RESET_PASSWORD_SECRET=<Your_RESET_PASSWORD_SECRET here>
-REFRESH_TOKEN_SECRET=<Your_REFRESH_TOKEN_SECRET_here>
-DATABASE=<Your MongoDB Cluster URL>
-PAYPAL_CLIENT_ID=<Your PayPal Client ID>
-CLOUDINARY_NAME=<Your Cloudinary Name>
-CLOUDINARY_API_KEY=<Your Cloudinary API Key>
-CLOUDINARY_API_SECRET=<Your Cloudinary API Secret>
-STRIPE_API_KEY=<Your STRIPE  API KEY>
-STRIPE_SECRET_KEY=<Your STRIPE  SECRET KEY>
-Google_webClientId=<Your google web Client id>
-Google_secretId=<Your google secret id>
-googleOauthRedirectUrl=<Your google redicrect URL>
-SMPT_HOST=<smtp.gmail.com>
-SMPT_PORT=<465>
-SMPT_SERVICE=<gmail> 
-SMPT_MAIL=<Your Email_that_you_use_for_sending_emails_via Nodemailer> 
-SMPT_PASSWORD=<Your password_that_you_generate_for_your_app_from_your email>
+cd client
+npm install
+cp .env.example .env
+npm run dev
 ```
 
-👉6 : Open your browser and navigate to http://localhost:3000 to access the Ziwishop application.
+访问 <http://localhost:3000>。前端开发服务器只允许来自 `http://localhost:3000` 的跨域请求，若修改端口，需要同步更新 `server/utils/allowedOrigins.js`。
 
-### Obtaining API Keys and IDs
+### 演示账号
 
- -  Google_webClientId , Google_secretId, and googleOauthRedirectUrl.
- ```bash
- To obtain a Google_webClientId , Google_secretId, and googleOauthRedirectUrl for your application, follow these steps:
+| 角色 | 邮箱 | 密码 |
+| --- | --- | --- |
+| 管理员 | `admin@ziwishop.com` | `Admin123!` |
+| 管理员（登录页提示的访客账号） | `ziwiShop@gmail.com` | `ziwiShop0000` |
+| 顾客 | `user@ziwishop.com` | `User123!` |
 
-  👉1:Create a Google Cloud Project:
+执行 `npm run seed` 后即可直接登录。种子数据包含 5 个品牌、5 个尺码、2 个父分类及其 6 个子分类、9 件商品和 3 笔演示订单。
 
-🔹Go to the Google Cloud Console.
-🔹Click on the project dropdown and then click "New Project".
-🔹Follow the prompts to set up your new project.
+## 环境变量
 
-  👉2:Enable the Google+ API:
-🔹In your project dashboard, go to "APIs & Services" > "Library".
-🔹Search for "Google+ API" and enable it. This API is used for user profile information.
+### server/.env
 
-  👉3: Configure OAuth Consent Screen:
-🔹In the Google Cloud Console, navigate to "APIs & Services" > "OAuth consent screen".
-🔹Fill in the required details like product name, user support email, etc.
-🔹Add scopes needed for your application (like email, profile).
-🔹Add authorized domains if needed.
-
-  👉4:Create OAuth Credentials:
-🔹In the Google Cloud Console, navigate to "APIs & Services" > "Credentials".
-🔹Click "Create Credentials" and choose "OAuth client ID".
-🔹Select "Web application" as the application type.
-🔹Add authorized redirect URIs for your application. These are the URLs where users will be redirected after granting access.
-🔹After creating, you'll receive Google_webClientId and Google_secretId. Keep them confidential.
-
-``` 
- -  Stripe API Keys
- ```bash
-To get your Stripe API keys, follow these steps:
-
-  👉1: Sign in to your Stripe account or create a new account if you don't have one: "https://dashboard.stripe.com/login"
-
-  👉2: In your Stripe dashboard, navigate to the "Developers" section.
-
-  👉3: Find or create your API keys. You will have both a "Publishable Key" and a "Secret Key." Use the "Secret Key" as your STRIPE_SECRET_KEY and the "Publishable Key" in your frontend code for making client-side requests.
-``` 
-
- -  PayPal Client ID
- ```bash
-To obtain a PayPal Client ID for your application, follow these steps:
-
-  👉1: Creating a PayPal Account:
-To create a PayPal account, visit the official PayPal website at https://www.paypal.com and sign up or sign in. Follow the instructions to set up your account with your email address, personal information, and payment details.
-
- 👉2: Creating a PayPal Developer Account:
-After creating a regular PayPal account, sign up for a PayPal Developer account at https://developer.paypal.com/. This account allows you to access the PayPal Developer Dashboard and manage sandbox and live applications.
-
-  👉3: Accessing the PayPal Developer Dashboard:
-Log in to the PayPal Developer Dashboard at https://developer.paypal.com/dashboard/ using your developer account credentials. Here, you can create and manage sandbox and live applications.
-
-  👉4: Creating a Sandbox App and Generating Client ID:
-In the PayPal Developer Dashboard, navigate to the "My Apps & Credentials" section. Click on "Create App" to create a new sandbox app. Provide basic information about your application.
-
-Once your sandbox app is created, you will find the Client ID under the "REST API apps" section. This Client ID is a key your application uses to authenticate with the PayPal REST APIs. Use this PAYPAL_CLIENT_ID in your environment variables.
-``` 
-
- -  Cloudinary Variables
- ```bash
-To configure Cloudinary, follow these steps:
-
-  👉1: Create a Cloudinary account at https://cloudinary.com/.
-
-  👉2: After creating an account, you will obtain a CLOUDINARY_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET. Use these values in your environment variables.
-```
-  -  Facebook and VITE_GOOGLE_CLIENT_ID , and VITE_GOOGLE_OAUTH_REDIRECT_URL
 ```bash
-For your Facebook and Google client IDs, you can obtain them by creating apps on the respective platforms:
+PORT=5000
+DATABASE=mongodb://127.0.0.1:27017/ziwishop
+DATABASE_PASSWORD=
 
-  👉 Facebook: Create an app on the Facebook for Developers platform to get your VITE_FACEBOOK_APP_ID.
+ACCESS_TOKEN_SECRET=
+ACTIVATION_SECRET=
+REFRESH_TOKEN_SECRET=
+RESET_PASSWORD_SECRET=
 
-  👉  Google: Follow the instructions outlined earlier to obtain your VITE_GOOGLE_CLIENT_ID and VITE_GOOGLE_OAUTH_REDIRECT_URL
-  ```
-## Illustration of Google Oauth process (without Passport or any googleapis npm package)
- throw this diagram you will learn how OAuth integrations work and specifically how you can set up a Google OAuth integration with your own Node.js application and it the end the concepts are the same irrespective of the service provider
+FRONTEND_URL=http://localhost:3000
+APP_NAME=ziwishop
 
-<img src="https://github.com/mohamedzhioua/ZiwiShop-ecommerce/blob/main/client/src/assets/google-oauth.jpeg">
+CLOUDINARY_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
 
- ---
-## Authentication / Authorization
-Ziwishop offers a robust authentication system that enables users to conveniently and securely access the platform through their Google and Facebook accounts. Additionally, for users who choose to log in using their email addresses, an email containing a verification link will be sent to ensure the authenticity of their account.
+STRIPE_API_KEY=
+STRIPE_SECRET_KEY=
+PAYPAL_CLIENT_ID=sandbox
 
-Our platform employs **role-based access control for authorization**, which involves categorizing permissions into roles such as "User" or "Admin" and then assigning these roles to respective users. This practice is a widely recognized and effective method for organizing authorization mechanisms.
+Google_webClientId=
+Google_secretId=
+googleOauthRedirectUrl=http://localhost:5000/api/v1/auth/googleLogin
 
-The **authentication process** is further enhanced with JWT (JSON Web Tokens) Access, Refresh Tokens, Cookies, and Axios integration. In cases where a request, such as a "getCourse" request, results in a 401 error due to unauthorized access, a RefreshToken API is invoked.
+SMPT_HOST=smtp.gmail.com
+SMPT_PORT=465
+SMPT_SERVICE=gmail
+SMPT_MAIL=
+SMPT_PASSWORD=
+```
 
-Upon receiving a response from the RefreshToken API, the original request is reattempted, thus enabling a seamless continuation of the user's intended action.
+说明：
 
-Should the Refresh Token expire, a 'Refresh Token Invalid' message will be presented with a 403 HTTP status code, indicating that the user needs to reauthenticate.
+- `DATABASE` 中的 `<password>` 会被 `DATABASE_PASSWORD` 替换，本地直连可不含占位符。
+- Stripe 的 `STRIPE_SECRET_KEY` 必须存在（否则服务启动时 Stripe SDK 会报错），未配置真实密钥时仅影响在线支付，不影响浏览、下单（货到付款）等其他功能。
+- Cloudinary 未配置时，上传商品图片会失败，可先用其他图片 URL 或仅在演示数据下浏览。
+- 邮件相关变量未配置时，注册与找回密码的邮件发送会失败；本地演示可直接使用种子账号登录。
 
-In situations where a 403 error occurs during the RefreshToken API process, a user-friendly notification in the form of a "sweet alert" will be displayed for 5 seconds. Subsequently, all local storage will be cleared, and the window will be reloaded for a complete sign-out effect. This ensures that users are aware of the situation and provided with a smooth logout experience.
+### client/.env
 
- <img src="https://github.com/mohamedzhioua/ZiwiShop-ecommerce/blob/main/client/src/assets/authentication_flow.jpeg">
- <img src="https://github.com/mohamedzhioua/ZiwiShop-ecommerce/blob/main/client/src/assets/user_roles_cover.jpeg">
+```bash
+VITE_API_URL=http://localhost:5000
+VITE_GOOGLE_CLIENT_ID=
+VITE_GOOGLE_OAUTH_REDIRECT_URL=http://localhost:5000/api/v1/auth/googleLogin
+VITE_FACEBOOK_APP_ID=
+```
 
-## Admin Dashboard
-The Admin Dashboard is a powerful tool that allows administrators to manage various aspects of the platform. Admins can control categories, products, brands, sizes, and more. They can also view order history, sales analytics, and manage featured products.
+## 生产构建
 
-## User Interface
-The user interface is designed to provide customers with an intuitive shopping experience. Users can browse products, add them to the cart, and proceed to checkout. The interface also supports advanced search and filter options for efficient product discovery.
+```bash
+cd client && npm run build     # 产物输出到 client/dist
+cd server && npm start         # 启动 API 服务
+```
 
-## Categories
-Categories in Ziwishop can be organized hierarchically, allowing for nested categories. Administrators can create, update, and delete categories. Each category can be designated as a leaf or a tree, enhancing flexibility in categorization.
+构建产物可交由 Nginx、Netlify 等静态服务托管，`client/netlify.toml` 已配置单页应用回退；后端需保证 `VITE_API_URL` 指向的地址可访问，并把该地址加入 CORS 白名单。
 
-## Products
-Product management includes the ability to create, update, and delete products. Administrators can also mark products as "featured," which will showcase them on the homepage for increased visibility.
+## License
 
-## Brands
-Ziwishop allows administrators to manage brands, enabling users to filter products by brand. Brands can be created, updated, and deleted to provide a comprehensive catalog.
-
-## Sizes
-Sizes are an integral part of the product catalog. Administrators can define available sizes for products, facilitating accurate ordering by customers.
-
-## Image Management
-The integration with Cloudinary enables efficient image management for products. Multiple images can be uploaded for each product, and administrators can easily update or delete images as needed.
-
-## Search and Filters
-Ziwishop offers advanced search and filter options for categories, products, sizes, and price ranges. Pagination ensures that results are manageable and user-friendly.
-
-## Orders and Sales
-Users can view their order history and delete any order,  and administrators have access to sales analytics. Graphs display best-selling products and revenue overviews on a weekly basis.
-
-## Payment Options
-Ziwishop provides multiple payment options for customers, including Stripe and PayPal for online payments, as well as a cash payment option for flexibility.
-
-
-
-## Contributing
-
-Contributions are welcome! Please open an issue if you have any questions or suggestions. Your contributions will be acknowledged. Contact me for more information.
- 
- ---
- ## License
-
-Licensed under the MIT License. Check the [LICENSE](./LICENSE) file for details.
-
-
-<h3> 
-With Ziwishop, you have a comprehensive Clothes Ecommerce application that offers a rich set of features for both administrators and customers. Start using the app to provide a seamless and enjoyable shopping experience. For any questions or assistance, contact me . Happy selling! </h2>
-
-<h4>If you're interested in showing your support for my efforts, please consider giving a ⭐ star to my repository. Alternatively, you're welcome to get in touch with me, and we can share a coffee together ☕️❤️‍🔥.</h4>
-
-
-
-
-
+MIT，详见 [LICENSE](./LICENSE)。

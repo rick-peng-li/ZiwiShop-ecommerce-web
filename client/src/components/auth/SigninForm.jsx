@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import CustomInput from "../ui/CustomInput";
@@ -16,6 +16,7 @@ const SigninForm = () => {
   const { theme } = useTheme();
   const colors = tokens(theme.palette.mode);
   const [serverErrors, setServerErrors] = useState({});
+  const navigate = useNavigate();
 
   const initialValues = {
     email: "",
@@ -29,7 +30,9 @@ const SigninForm = () => {
 
   const onSubmitHandler = async (values, { setStatus, setSubmitting }) => {
     try {
-      await login(values.email, values.password);
+      const user = await login(values.email, values.password);
+      setServerErrors({});
+      navigate(user?.role === "ADMIN" ? "/dashboard/overview" : "/", { replace: true });
     } catch (error) {
       console.error(error);
       setServerErrors(error);

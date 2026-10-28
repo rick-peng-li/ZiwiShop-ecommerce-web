@@ -25,35 +25,46 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import CustomButton from '../ui/CustomButton';
 import { useLocation, useNavigate } from 'react-router-dom';
+import useAuth from '../../hooks/useAuth';
 
 const OneOrder = (props) => {
     const { data } = props
     const navigate = useNavigate()
+    const { user } = useAuth();
     const isMobileScreen = useMediaQuery((theme) => theme.breakpoints.down('md'));
     const [order, setOrder] = useState(data)
     const [clientSecret, setClientSecret] = useState("");
     const [stripePromise, setStripePromise] = useState(null);
     const location = useLocation();
     const { prevPath } = location.state || {};
+    const requiresStripe = order && !order.isPaid && order.paymentMethod === 'stripe';
 
     useEffect(() => {
+        if (!requiresStripe) return;
         const fetchStripeApiKey = async () => {
-            const publishableKey = await paymentApi.getstripeapikey();
-            setStripePromise(loadStripe(publishableKey));
+            try {
+                const publishableKey = await paymentApi.getstripeapikey();
+                setStripePromise(loadStripe(publishableKey));
+            } catch (error) {
+                console.error(error);
+            }
         }
         fetchStripeApiKey();
-    }, []);
+    }, [requiresStripe]);
 
     useEffect(() => {
-        if (order) {
-            const fetchClientSecret = async () => {
+        if (!requiresStripe) return;
+        const fetchClientSecret = async () => {
+            try {
                 const totalPriceCents = Math.round(order.totalPrice * 100);
                 const clientSecret = await paymentApi.paymentProcess(totalPriceCents);
                 setClientSecret(clientSecret);
-            };
-            fetchClientSecret();
-        }
-    }, [order]);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchClientSecret();
+    }, [requiresStripe, order?.totalPrice]);
 
 
     const payOrder = async (id, details) => {
@@ -76,6 +87,15 @@ const OneOrder = (props) => {
             navigate('/OrderHistory')
         } catch (err) {
             toast.error(err);
+        }
+    };
+    const DeliverOrder = async () => {
+        try {
+            const response = await orderApi.DeliverOrder(order?._id);
+            toast.success('Order marked as delivered');
+            setOrder(response);
+        } catch (err) {
+            toast.error('Could not update the order');
         }
     };
     return (
@@ -173,7 +193,17 @@ const OneOrder = (props) => {
                             <Typography variant="h5">{currencyFormatter.format(order.totalPrice)}</Typography>
                         </Box>
                         {prevPath && prevPath === "/dashboard/orders" ?
-                            null :
+                            (user?.role === 'ADMIN' && !order.isDelivered && (
+                                <Box sx={{ mt: 2 }}>
+                                    <CustomButton
+                                        color="success"
+                                        size="large"
+                                        onClick={DeliverOrder}
+                                    >
+                                        mark as delivered
+                                    </CustomButton>
+                                </Box>
+                            )) :
                             (
                                 <>
                                     <Box sx={{ mt: 2 }}>

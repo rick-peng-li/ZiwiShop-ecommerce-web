@@ -94,6 +94,7 @@ const AuthContext = createContext({
   register: () => Promise.resolve(),
   verifyemail: () => Promise.resolve(),
   resetpassword: () => Promise.resolve(),
+  updateProfile: () => Promise.resolve(),
 });
 
 export const AuthProvider = (props) => {
@@ -149,6 +150,7 @@ export const AuthProvider = (props) => {
         user,
       },
     });
+    return user;
   };
   const verifyemail = async (activationToken) => {
     const res = await authApi.emailverification(activationToken);
@@ -160,9 +162,11 @@ export const AuthProvider = (props) => {
         user,
       },
     });
+    return user;
   };
   const resetpassword = async (resetPasswordToken, password, confirmPassword) => {
-    const user = await authApi.resetpassword({ resetPasswordToken, password, confirmPassword });
+    const res = await authApi.resetpassword({ resetPasswordToken, password, confirmPassword });
+    const user = decodeToken(res);
     localStorage.setItem("userDetails", JSON.stringify(user));
     dispatch({
       type: "RESET_PASSWORD",
@@ -170,6 +174,18 @@ export const AuthProvider = (props) => {
         user,
       },
     });
+  };
+  const updateProfile = async (data) => {
+    const res = await authApi.updateProfile(data);
+    const user = decodeToken(res);
+    localStorage.setItem("userDetails", JSON.stringify(user));
+    dispatch({
+      type: "LOGIN",
+      payload: {
+        user,
+      },
+    });
+    return user;
   };
   const facebookLogin = async (userID, accessToken) => {
     const user = await authApi.facebookLogin({
@@ -235,6 +251,7 @@ export const AuthProvider = (props) => {
         googleLogin,
         verifyemail,
         resetpassword,
+        updateProfile,
       }}
     >
       {children}

@@ -27,6 +27,9 @@ class OrderApi {
   PayOrder(id , data ) {
     return this.request('patch', `/${id}/pay`, data);
   }
+  DeliverOrder(id) {
+    return this.request('patch', `/${id}/deliver`);
+  }
   GetMyOrders() {
     return this.request('get', `/mine`);
   }

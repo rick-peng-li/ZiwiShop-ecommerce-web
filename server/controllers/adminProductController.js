@@ -203,6 +203,34 @@ module.exports = {
       return res.status(500).send("Error: " + error.message);
     }
   },
+  //  ---------------------------------------- //DeleteProduct//--------------------------- //
+  DeleteProduct: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { errors, isValid } = IdParamsValidation(req.params);
+      if (!isValid) {
+        return res.status(400).json(errors);
+      }
+
+      const product = await Product.findById(id).populate("images", "cloudinary_id");
+      if (!product) {
+        return res.status(404).json("product not found");
+      }
+
+      await Promise.all(
+        product.images.map(async (image) => {
+          await removeFromCloudinary(image.cloudinary_id);
+          await Image.findByIdAndDelete(image._id);
+        })
+      );
+
+      await product.deleteOne();
+
+      return res.status(200).json({ message: "Product deleted" });
+    } catch (error) {
+      return res.status(500).send("Error: " + error.message);
+    }
+  },
   //  ---------------------------------------- //UpdateProducts//--------------------------- //
   UpdateProduct: async (req, res) => {
     try {

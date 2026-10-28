@@ -11,7 +11,9 @@ router.post("/", isAuth, OrderController.CreateOrder);
 
 router.get("/:id", isAuth, OrderController.GetOneOrder);
 
-router.patch("/:id/pay", isAuth, OrderController.PayOrder) 
+router.patch("/:id/pay", isAuth, OrderController.PayOrder)
+
+router.patch("/:id/deliver", isAuth, isAdmin, OrderController.DeliverOrder)
 
 router.delete("/:id", isAuth, OrderController.DeleteOrder) 
  

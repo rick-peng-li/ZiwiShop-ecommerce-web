@@ -301,7 +301,45 @@ module.exports = {
       res.status(500).json("Facebook login failed. Please try again later");
     }
   },
-  //  ---------------------------------------- //refresh token //--------------------------- //
+  //  ---------------------------------------- //GetProfile//--------------------------- //
+  getProfile: async (req, res) => {
+    try {
+      const user = await User.findById(req.user._id).select(
+        "_id name email image role verified serviceProvider createdAt"
+      );
+      if (!user) {
+        return res.status(404).json("User not found");
+      }
+      return res.status(200).json(user);
+    } catch (error) {
+      return res.status(500).send("Error: " + error.message);
+    }
+  },
+  //  ---------------------------------------- //UpdateProfile//--------------------------- //
+  updateProfile: async (req, res) => {
+    const { name, image } = req.body;
+    try {
+      if (!name || !name.trim()) {
+        return res.status(400).json({ name: "Name is required" });
+      }
+      const user = await User.findById(req.user._id);
+      if (!user) {
+        return res.status(404).json("User not found");
+      }
+      user.name = name.trim();
+      if (image) {
+        user.image = image;
+      }
+      await user.save();
+
+      // Issue a fresh access token so the client keeps the updated profile data
+      const token = AccessToken(user);
+      return res.status(200).json(token);
+    } catch (error) {
+      return res.status(500).send("Error: " + error.message);
+    }
+  },
+  //  ---------------------------------------- //Refresh token //--------------------------- //
 
   refresh: async (req, res) => {
     const cookies = req.cookies;

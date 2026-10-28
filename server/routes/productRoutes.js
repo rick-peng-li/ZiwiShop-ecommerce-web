@@ -31,7 +31,7 @@ router.patch(
   AdminProductController.UpdateProduct
 );
 
-// router.delete("/:id", AdminProductController);
+router.delete("/:id", isAuth, isAdmin, AdminProductController.DeleteProduct);
 
 router.get(
   "/client/Products",
